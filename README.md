@@ -1,11 +1,11 @@
 # Website Content Extractor and Summarizer API
 
-This project provides a web scraping and summarization API that allows users to extract specific information from websites. Users can input a URL along with a description of the content they are interested in, and the API will return a focused summary based on the provided description.
+This project provides a web scraping and summarization API that extracts and summarizes content from websites. Users can input a URL, and the API will return a concise summary of the website's content, without needing to specify what to extract.
 
 ## Features
 - Scrapes website content using **BeautifulSoup** to extract the body text.
-- Cleans and processes HTML to extract only relevant content.
-- Summarizes extracted content based on user-defined descriptions using **LLama model** via **LangChain** and **Ollama**.
+- Cleans and processes HTML to extract only the relevant content.
+- Summarizes extracted content using **OpenAI's GPT model** (currently using **GPT-3.5-turbo**).
 - Fast, efficient API built with **FastAPI**.
 - Asynchronous web requests handled by **httpx** for speed and scalability.
 
@@ -13,23 +13,28 @@ This project provides a web scraping and summarization API that allows users to 
 - **Python**: Backend programming language.
 - **FastAPI**: Framework for building the web API.
 - **BeautifulSoup**: Library for HTML parsing and content extraction.
-- **Ollama**: Language model (LLama-based) for text generation and summarization.
+- **OpenAI GPT**: Language model for text generation and summarization.
 - **httpx**: Asynchronous HTTP client for fetching web content.
-- **LangChain**: Tool for managing prompts and integrating language models.
 - **Uvicorn**: ASGI server to run the FastAPI application.
 
 ## How It Works
-1. Users provide a URL and a description of the information they want to extract.
-2. The website content is fetched, cleaned, and chunked into smaller parts (if necessary).
-3. The **LLama model** processes the chunks to generate a summary or extract the relevant information based on the user's description.
-4. The API returns a concise summary focused on the description provided.
+1. **User Input**: Users provide a URL of the website they wish to summarize.
+2. **Web Scraping**: The website content is fetched using `httpx` and parsed using **BeautifulSoup**.
+3. **Content Cleaning**: The raw HTML content is cleaned to remove any unnecessary elements, retaining only the main body of text.
+4. **Summarization**: The cleaned text is sent to **GPT-3.5-turbo** for summarization. The model processes the entire website content and generates a concise summary.
+5. **Return Response**: The API returns the summary of the website's content.
+
+### New Features:
+- No need for users to provide a specific description of the content. The API will automatically summarize the entire website based on the content it retrieves.
+- The response is a general summary of the website, making it more user-friendly and easier to use.
 
 ## API Endpoint
-- **POST** `/extract-info/`: Extract and summarize content from a given website based on the user's description.
+- **POST** `/extract-info/`: Extract and summarize content from a given website.
 
-### Example Request:
+### Request Example:
+The request now only requires a URL of the website to summarize:
+
 ```json
 {
-  "url": "https://gocartours.com/blog/brief-history-madrid/",
-  "parse_description": "Provide a summary of the main historical events discussed in the blog."
+  "url": "https://gocartours.com/blog/brief-history-madrid/"
 }
