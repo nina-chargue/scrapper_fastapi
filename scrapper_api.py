@@ -2,14 +2,13 @@ from typing import List
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import httpx
-from scrap import extract_body_content, clean_body_content, split_dom_content
-from parse import parse_with_ollama
+from scrapping_logic import extract_body_content, clean_body_content, split_dom_content
+from openai_parse import summarize_with_chatgpt 
 
 app = FastAPI()
 
 class WebsiteRequest(BaseModel):
     url: str
-    parse_description: str
 
 class WebsiteTextInfo(BaseModel):
     body: List[str]
@@ -29,7 +28,7 @@ async def fetch_website_data(url: str) -> dict:
                 data = {"body": body_content}
             else:
                 data = {"body": ["No body content found"]}
-            
+
             return data
 
     except httpx.HTTPStatusError as e:
@@ -40,6 +39,7 @@ async def fetch_website_data(url: str) -> dict:
 @app.post("/extract-info/")
 async def extract_info(request: WebsiteRequest):
     data = await fetch_website_data(request.url)
-    parsed_data = parse_with_ollama(data['body'], request.parse_description)
 
+    parsed_data = await summarize_with_chatgpt(data['body'])
+    
     return {"parsed_data": parsed_data}
